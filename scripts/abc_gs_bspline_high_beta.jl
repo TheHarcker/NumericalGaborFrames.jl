@@ -3,7 +3,8 @@ include("../modules/ghosh_selvan.jl")
 
 import .GhoshSelvan as gs
 
-compute = true
+compute = false
+
 T1 = Float64
 T2 = Double64
 optim_iter_M = 20
@@ -38,7 +39,7 @@ for m in 2:5
     phi_hat = x -> bspline_hat(m, x)
     compute_sums(beta, w) = gs.compute_sums_generic(phi_hat, compact_support_hat, beta, w)
 
-    file_path = "../Data/frame_sets/abc_gs_high_beta_bspline_$m.npz"
+    file_path = "data/frame_sets/abc_gs_high_beta_bspline_$m.npz"
     if compute
         beta = uniform_spaced_values(beta_min, beta_max, dbeta; T=T1)
         alpha = gs.frame_set_max_alpha(compute_sums, beta, dw; optim_iter_M, print_progress, T2)
@@ -60,6 +61,5 @@ for m in 2:5
     xlabel!("\\beta")
     ylabel!("\\alpha \\beta")
     display(plt)
-    savefig(plt, "../Figures/julia/abc_gs_high_beta_bspline_$m.png")
+    savefig(plt, "plots/abc_gs_high_beta_bspline_$m.png")
 end
-

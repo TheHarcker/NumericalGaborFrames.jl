@@ -5,7 +5,7 @@ include("../modules/zibulski_zeevi.jl")
 import .GhoshSelvan as gs
 import .ZibulskiZeevi as zz
 
-compute = true
+compute = false
 
 print_progress = 1
 B_symmetric = true
@@ -42,11 +42,11 @@ for m in 2:5
         is_not_frame = nothing
         A_zz, B_zz, alpha_zz, beta_zz = zz.frame_bounds_grid(phi, compact_support, fractions, dalpha, dbeta, dt, dv, alpha_max, beta_max; optim_iter, is_not_frame, print_progress, T1, T2)
 
-        save_bounds("../Data/frame_bounds/gs_bspline_$m.npz", A_gs, B_gs, alpha_gs, beta_gs)
-        save_bounds("../Data/frame_bounds/zz_bspline_$m.npz", A_zz, B_zz, alpha_zz, beta_zz)
+        save_bounds("data/frame_bounds/gs_bspline_$m.npz", A_gs, B_gs, alpha_gs, beta_gs)
+        save_bounds("data/frame_bounds/zz_bspline_$m.npz", A_zz, B_zz, alpha_zz, beta_zz)
     else
-        A_gs, B_gs, alpha_gs, beta_gs = load_bounds("../Data/frame_bounds/gs_bspline_$m.npz")
-        A_zz, B_zz, alpha_zz, beta_zz = load_bounds("../Data/frame_bounds/zz_bspline_$m.npz")
+        A_gs, B_gs, alpha_gs, beta_gs = load_bounds("data/frame_bounds/gs_bspline_$m.npz")
+        A_zz, B_zz, alpha_zz, beta_zz = load_bounds("data/frame_bounds/zz_bspline_$m.npz")
     end
 
     is_frame_gs = is_gabor_frame(A_gs, B_gs)
@@ -59,14 +59,14 @@ for m in 2:5
     xlabel!("\\alpha")
     ylabel!("\\beta")
     display(plt)
-    savefig(plt, "../Figures/julia/frame_set_bspline_$m.png")
+    savefig(plt, "plots/frame_set_bspline_$m.png")
 
-    plt = scatter3d(alpha_gs[is_frame_gs], beta_gs[is_frame_gs], log10.(A_gs[is_frame_gs]), label="GS lower bond", markersize=1, markerstrokewidth=0, camera=(135,30), alpha=0.5)
+    plt = scatter3d(alpha_gs[is_frame_gs], beta_gs[is_frame_gs], log10.(A_gs[is_frame_gs]), label="GS lower bound", markersize=1, markerstrokewidth=0, camera=(135,30), alpha=0.5)
     scatter3d!(alpha_gs[is_frame_gs], beta_gs[is_frame_gs], log10.(B_gs[is_frame_gs]), label="GS upper bound", markersize=1, markerstrokewidth=0, alpha=0.5)
     scatter3d!(alpha_zz[is_frame_zz], beta_zz[is_frame_zz], log10.(A_zz[is_frame_zz]), label="ZZ lower bound", markersize=1, markerstrokewidth=0, alpha=0.5)
     scatter3d!(alpha_zz[is_frame_zz], beta_zz[is_frame_zz], log10.(B_zz[is_frame_zz]), label="ZZ upper bound", markersize=1, markerstrokewidth=0, alpha=0.5)
     xlabel!("\\alpha")
     ylabel!("\\beta")
     display(plt)
-    savefig(plt, "../Figures/julia/frame_bounds_bspline_$m.png")
+    savefig(plt, "plots/frame_bounds_bspline_$m.png")
 end

@@ -49,5 +49,5 @@ Threads.@threads for i in 1:length(m_range)
     end
 end
 
-writedlm("../Data/tables/table_m_$m_min-$(m_max)_beta_$beta_min-$beta_max.csv",  table, ',')
+writedlm("data/tables/table_m_$m_min-$(m_max)_beta_$beta_min-$beta_max.csv",  table, ',')
 print(table)

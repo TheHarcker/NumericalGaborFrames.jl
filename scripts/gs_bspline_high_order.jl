@@ -3,7 +3,8 @@ include("../modules/ghosh_selvan.jl")
 
 import .GhoshSelvan as gs
 
-compute = true
+compute = false
+
 T1 = Float64
 T2 = Float64
 optim_iter_M = 20
@@ -21,9 +22,8 @@ alpha_max = 5
 beta_min = dbeta
 beta_max = 10
 
-# Compute and save or load old
-file_path1 = "../Data/frame_sets/frame_set_gs_special_bspline_$m.npz"
-file_path2 = "../Data/frame_sets/frame_set_gs_generic_bspline_$m.npz"
+file_path1 = "data/frame_bounds/gs_special_bspline_$m.npz"
+file_path2 = "data/frame_bounds/gs_generic_bspline_$m.npz"
 if compute
     compute_sums1(beta, w) = gs.compute_sums_bspline(m, beta, w)
     A1, B1, alpha1, beta1 = gs.frame_bounds_grid(compute_sums1, dalpha, dbeta, dw, alpha_max, beta_max; beta_min, optim_iter_M, optim_iter_s2, B_symmetric, print_progress, T1, T2)
@@ -48,11 +48,11 @@ xlabel!("\\alpha")
 ylabel!("\\beta")
 ylims!(0, beta_max)
 display(plt)
-savefig(plt, "../Figures/julia/frame_set_gs_special_bspline_$m.png")
+savefig(plt, "plots/frame_set_gs_special_bspline_$m.png")
 
 plt = scatter(alpha2[is_frame2], beta2[is_frame2], markersize=0.3, markerstrokewidth=0, legend=false)
 xlabel!("\\alpha")
 ylabel!("\\beta")
 ylims!(0, beta_max)
 display(plt)
-savefig(plt, "../Figures/julia/frame_set_gs_generic_bspline_$m.png")
+savefig(plt, "plots/frame_set_gs_generic_bspline_$m.png")

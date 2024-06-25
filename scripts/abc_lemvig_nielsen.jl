@@ -3,16 +3,18 @@ include("../modules/ghosh_selvan.jl")
 
 import .GhoshSelvan as gs
 
-compute = true
+compute = false
+
 T1 = Float64
 T2 = Double64
+
 optim_iter_M = 20
 print_progress = 1
+B_symmetric = true
 
 m = 2
 phi_hat = x -> bspline_hat(m, x)
 compact_support = (-200, 200)
-#compute_sums(beta, w) = gs.compute_sums_bspline(m, beta, w)
 compute_sums(beta, w) = gs.compute_sums_generic(phi_hat, compact_support, beta, w)
 
 fractions = generate_reduced_fractions_below_one(1, 10)
@@ -55,10 +57,10 @@ function lemvig_nielsen(
     return is_not_frame, alpha_new, beta_new
 end
 
-file_path_gs = "../Data/frame_sets/abc_lemvig_nielsen_bspline_$m.npz"
+file_path_gs = "data/frame_sets/abc_lemvig_nielsen_bspline_$m.npz"
 if compute
     beta_gs = uniform_spaced_values(dbeta, beta_max, dbeta; T=T1)
-    alpha_gs = gs.frame_set_max_alpha(compute_sums, beta_gs, dw; optim_iter_M, print_progress, T2)
+    alpha_gs = gs.frame_set_max_alpha(compute_sums, beta_gs, dw; optim_iter_M, B_symmetric, print_progress, T2)
     alpha_gs .*= beta_gs
 
     save_alpha_beta(file_path_gs, alpha_gs, beta_gs)
@@ -88,4 +90,4 @@ scatter!(beta_ce, alpha_ce, markersize = 1, markerstrokewidth = 0, c=:red, label
 xlabel!("\\beta")
 ylabel!("\\alpha \\beta")
 display(plt)
-savefig(plt, "../Figures/julia/abc_lemvig_nielsen_bspline_$m.png")
+savefig(plt, "plots/abc_lemvig_nielsen_bspline_$m.png")

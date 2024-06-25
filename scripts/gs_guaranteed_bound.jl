@@ -62,8 +62,7 @@ function plot_guaranteed_bound(m::Integer, num_q::Integer, alpha_max::Real, beta
         ylims!(beta_min, beta_max)
         title!("Frame set for Q_$m")
         display(combined_plot)
-        savefig(combined_plot, "Figures/julia/gs_guaranteed_$(show_as_ab_b_plot ? "ab-b" : "a-b")_$m$(GhoshSelvanGuaranteedBound.Constants.assume_sigma_inf_conjecture ? "_convex" : "_non-convex").png")
+        savefig(combined_plot, "plots/gs_guaranteed_$(show_as_ab_b_plot ? "ab-b" : "a-b")_$m$(GhoshSelvanGuaranteedBound.Constants.assume_sigma_inf_conjecture ? "_convex" : "_non-convex").png")
     end
 end
 plot_guaranteed_bound(4, 100, 1, 1, 4; show_as_ab_b_plot=false, binary_search_for_d_with_iterations=10)
-

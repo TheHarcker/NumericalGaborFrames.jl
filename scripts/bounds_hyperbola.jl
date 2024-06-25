@@ -1,3 +1,4 @@
+# Run if script is executed directly
 include("../utils.jl")
 include("../modules/ghosh_selvan.jl")
 include("../modules/zibulski_zeevi.jl")
@@ -6,10 +7,9 @@ import .ZibulskiZeevi as zz
 import .GhoshSelvan as gs
 using Plots
 
-m = 3
+compute = false
 
-gs_path = "../Data/bspline_order_$(m)_hyperbola_ghosh_selvan_bounds.npz"
-zz_path = "../Data/bspline_order_$(m)_hyperbola_zibulski_zeevi_bounds.npz"
+m = 2
 
 T1 = Float64
 T2 = Double64
@@ -32,12 +32,14 @@ beta_min = 0
 beta_max = 10
 fractions = [1//3]
 
-compute = true
+gs_path = "data/frame_bounds/gs_hyperbola_bspline_$m.npz"
+zz_path = "data/frame_bounds/zz_hyperbola_bspline_$m.npz"
+
 if compute
     phi = x -> bspline(m, x)
     compact_support = (-m/2, m/2)
     is_not_frame = nothing
-    A_zz, B_zz, alpha_zz, beta_zz = zz.frame_bounds_grid(phi, compact_support, fractions, dalpha, dbeta, dt, dv, alpha_max, beta_max; optim_iter, is_not_frame, print_progress = print_progress, T1, T2)
+    A_zz, B_zz, alpha_zz, beta_zz = zz.frame_bounds_grid(phi, compact_support, fractions, dalpha, dbeta, dt, dv, alpha_max, beta_max; optim_iter, is_not_frame, print_progress, T1, T2)
     save_bounds(zz_path, A_zz, B_zz, alpha_zz, beta_zz)
 
     phi_hat(x) = bspline_hat(m, x)
@@ -51,7 +53,7 @@ if compute
     alpha_gs = T1[]
     beta_gs = T1[]
 
-    for (i, (alpha_i, beta_i)) in enumerate(zip(alpha_zz, beta_zz))
+    for (i, (alpha_i, beta_i)) in enumertae(zip(alpha_zz, beta_zz))
         if print_progress > 0
             println("Iteration (alpha, beta) = ($alpha_i, $beta_i) ($i out of $I)")
         end
@@ -69,24 +71,27 @@ if compute
 else
     A_zz, B_zz, alpha_zz, beta_zz = load_bounds(zz_path)
     A_gs, B_gs, alpha_gs, beta_gs = load_bounds(gs_path)
+
 end
 
 is_frame_gs = is_gabor_frame(A_gs, B_gs)
 is_frame_zz = is_gabor_frame(A_zz, B_zz, min_tol = 1e-20)
 
-is_frame_subplot_gs = is_gabor_frame(A_gs, B_gs, min_tol = 1e-1)
-is_frame_subplot_zz = is_gabor_frame(A_zz, B_zz, min_tol = 1e-1)
+is_frame_subplot_gs = is_gabor_frame(A_gs, B_gs, min_tol = 1e0)
+is_frame_subplot_zz = is_gabor_frame(A_zz, B_zz, min_tol = 1e0)
 
 
 ### Plot bounds along hyperbola
 plt = scatter(beta_gs[is_frame_gs], B_gs[is_frame_gs], markersize=1, markerstrokewidth=0, label="GS upper bound", yscale =:log10, legend=:bottomleft)
 scatter!(beta_gs[is_frame_gs], A_gs[is_frame_gs], markersize=1, markerstrokewidth=0, label="GS lower bound")
 scatter!(beta_zz[is_frame_zz], B_zz[is_frame_zz], markersize=1, markerstrokewidth=0, label="ZZ upper bound")
-scatter!(beta_zz[is_frame_zz], A_zz[is_frame_zz], markersize=1, markerstrokewidth=0, label="ZZ lower bound", )
-scatter!(beta_zz[is_frame_subplot_zz], B_zz[is_frame_subplot_zz], markersize=1, markerstrokewidth=0, inset=[(1, bbox(0.5, 0.25, 0.25, 0.25, :bottom, :right))], subplot = 1)
-scatter!(beta_zz[is_frame_subplot_zz], A_zz[is_frame_subplot_zz], markersize=1, markerstrokewidth=0, inset=[(1, bbox(0.5, 0.25, 0.25, 0.25, :bottom, :right))], subplot = 1)
+scatter!(beta_zz[is_frame_zz], A_zz[is_frame_zz], markersize=1, markerstrokewidth=0, label="ZZ lower bound")
+
+plot!(plt, inset=bbox(0.0, 0.15, 0.3, 0.25, :top, :right), subplot=2, legend=false, yscale =:log10)
+scatter!(plt[2], beta_gs[is_frame_subplot_gs], [B_gs[is_frame_subplot_gs], A_gs[is_frame_subplot_gs]],  markersize=1, markerstrokewidth=0)
+scatter!(plt[2], beta_zz[is_frame_subplot_zz], [B_zz[is_frame_subplot_zz], A_zz[is_frame_subplot_zz]],  markersize=1, markerstrokewidth=0)
+
 
 xlabel!("\\beta")
-ylabel!("Bounds")
 display(plt)
-savefig(plt, "../Figures/julia/bspline_order_$(m)_hyperbola_bounds.png")
+savefig(plt, "plots/bspline_order_$(m)_hyperbola_bounds.png")
